@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  excerpt     String
+  category    String
+  body        String     @db.Text
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([category, status])
+}
+
+model LoginThrottle {
+  id          String   @id
+  attempts    Int      @default(0)
+  lockedUntil DateTime?
+  updatedAt   DateTime @updatedAt
+}
+
+model Media {
+  id        String   @id @default(uuid())
+  mimeType  String
+  data      Bytes
+  createdAt DateTime @default(now())
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
